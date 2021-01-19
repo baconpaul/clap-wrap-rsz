@@ -19,6 +19,19 @@ ToyJuceAudioProcessor::ToyJuceAudioProcessor()
                       .withOutput ("Output", AudioChannelSet::stereo(), true)
         )
 {
+    for( int i=0; i<9; ++i ) {
+        auto name = std::string("foo_") + std::to_string(i);
+        fsparams.push_back(std::make_unique<FakeSurgeParameter>(name, 0.5, 2*i));
+        name = std::string("bar_") + std::to_string(8-i);
+        fsparams.push_back(std::make_unique<FakeSurgeParameter>(name, 0.5, 2*i+1));
+    }
+
+
+    for( auto &p : fsparams )
+    {
+        params.push_back(new FSPRangedAdapter(p.get(), this));
+        addParameter(params.back());
+    }
 }
 
 ToyJuceAudioProcessor::~ToyJuceAudioProcessor()
@@ -103,6 +116,12 @@ bool ToyJuceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) 
 
 void ToyJuceAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+    std::pair<int,float> q;
+    while( uiMessageQ.pop(q))
+    {
+        auto p = params[q.first];
+        p->setValueNotifyingHost(q.second);
+    }
 }
 
 //==============================================================================

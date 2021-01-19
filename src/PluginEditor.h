@@ -16,7 +16,8 @@
 //==============================================================================
 /**
 */
-class ToyJuceAudioProcessorEditor  : public juce::AudioProcessorEditor
+class ToyJuceAudioProcessorEditor  : public juce::AudioProcessorEditor,
+         juce::Slider::Listener
 {
 public:
     ToyJuceAudioProcessorEditor (ToyJuceAudioProcessor&);
@@ -26,7 +27,23 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    void sliderValueChanged(juce::Slider *) override;
+
+    struct IdleTimer : juce::Timer {
+        IdleTimer(ToyJuceAudioProcessorEditor *ed) : ed(ed) {}
+        ~IdleTimer() = default;
+        void timerCallback() override { ed->idle(); }
+        ToyJuceAudioProcessorEditor *ed;
+    };
+    void idle();
 private:
+    std::unique_ptr<IdleTimer> idleTimer;
+
+
+    struct juceSliderWithParam : public juce::Slider {
+        FakeSurgeParameter *p;
+    };
+    std::vector<std::unique_ptr<juceSliderWithParam>> sliders;
 
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
