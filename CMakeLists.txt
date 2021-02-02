@@ -6,6 +6,16 @@ project(toy-juce VERSION 0.9.0 LANGUAGES CXX)
 
 add_subdirectory(lib/JUCE)
 
+set( BUILD_VST2 FALSE )
+if( BUILD_VST2 )
+    set( EXTRA_FORMATS VST )
+    juce_set_vst2_sdk_path( "../VST2_SDK")
+else()
+    set( EXTRA_FORMATS "" )
+endif()
+
+message( STATUS "Extra Formats : ${EXTRA_FORMATS}" )
+
 juce_add_plugin(toy-juce
     PRODUCT_NAME "ToyJuce"
     COMPANY_NAME "Surge Synth Team"  
@@ -18,7 +28,7 @@ juce_add_plugin(toy-juce
     NEEDS_MIDI_OUTPUT FALSE
     IS_MIDI_EFFECT FALSE
     
-    FORMATS AU VST3 Standalone
+    FORMATS AU VST3 Standalone ${EXTRA_FORMATS}
 )
 
 juce_generate_juce_header( toy-juce )
