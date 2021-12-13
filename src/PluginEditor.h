@@ -42,6 +42,27 @@ private:
 
     struct juceSliderWithParam : public juce::Slider {
         FakeSurgeParameter *p;
+
+        void mouseDown(const juce::MouseEvent &e) override
+        {
+           if (e.mods.isPopupMenu())
+           {
+               auto m = juce::PopupMenu();
+               m.addItem( "Say Hi", []() { std::cout << "Hi" << std::endl; });
+               m.addItem( "Set to Zero", [this]() { setValue(0, juce::sendNotificationAsync);});
+               m.addItem( "Set to Half", [this]() { setValue(0.5, juce::sendNotificationAsync);});
+               m.addItem( "Set to One", [this]() { setValue(1.0, juce::sendNotificationAsync);});
+               m.addItem( "Roll the Dice", [this]() {
+                  float q = 1.f * rand() / ((float)RAND_MAX);
+                  setValue(q, juce::sendNotificationAsync);
+               });
+               m.showMenuAsync(juce::PopupMenu::Options());
+           }
+           else
+           {
+              juce::Slider::mouseDown(e);
+           }
+        }
     };
     std::vector<std::unique_ptr<juceSliderWithParam>> sliders;
 

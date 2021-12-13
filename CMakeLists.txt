@@ -64,7 +64,6 @@ target_link_libraries(toy-juce PRIVATE
     juce::juce_analytics
     juce::juce_audio_utils
     juce::juce_audio_processors
-    juce::juce_blocks_basics
     juce::juce_box2d
     juce::juce_dsp
 )

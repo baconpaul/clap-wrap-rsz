@@ -28,8 +28,6 @@ ToyJuceAudioProcessorEditor::ToyJuceAudioProcessorEditor (ToyJuceAudioProcessor&
         auto t = p->streaming_name;
         auto v = p->value;
 
-        std::cout << "Value is " << v << std::endl;
-
         auto sl = std::make_unique<juceSliderWithParam>();
         sl->p = p.get();
         sl->setRange(0.f, 1.f );
