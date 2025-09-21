@@ -14,87 +14,68 @@
 using namespace juce;
 
 
+std::array zooms{1.f, 1.5f, 0.75f, 2.f};
+
+struct ResizeContents : juce::Component
+{
+    ResizeEditor &ed;
+    ResizeContents(ResizeEditor &e) : ed(e)
+    {
+        for (int i=0; i<nSizes; ++i)
+        {
+            auto b = std::make_unique<juce::TextButton>(std::to_string((int)(zooms[i] * 100)) + "%");
+            b->onClick = [i, w = juce::Component::SafePointer(this)](){if (w) w->ed.doSize(i);};
+            addAndMakeVisible(*b);
+            sizeButtons[i] = std::move(b);
+        }
+    }
+
+    void paint(juce::Graphics &g) override
+    {
+        g.fillAll(juce::Colour(0x40, 0x20, 0x00));
+    }
+
+    void resized() override
+    {
+        std::cout << getLocalBounds().toString() << std::endl;
+        auto lb = getLocalBounds(); // .transformedBy(getTransform().inverted());
+        auto bx = lb.reduced(10).withHeight(40);
+        auto bw = bx.getWidth() / (nSizes);
+        bx = bx.withWidth(bw);
+        for (int i=0; i<nSizes; ++i) {
+            std::cout << "Button i to " << bx.reduced(2).toString() << std::endl;
+            sizeButtons[i]->setBounds(bx.reduced(2));
+            bx = bx.translated(bw, 0);
+        }
+    }
+
+
+    static constexpr int nSizes{4};
+    std::array<std::unique_ptr<juce::Button>, nSizes> sizeButtons;
+};
+
 //==============================================================================
-ToyJuceAudioProcessorEditor::ToyJuceAudioProcessorEditor (ToyJuceAudioProcessor& p)
+ResizeEditor::ResizeEditor (ResizeAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    setSize (784, 742);
-
-    int ypos = 30;
-    for( auto &p : processor.fsparams )
-    {
-        auto t = p->streaming_name;
-        auto v = p->value;
-
-        auto sl = std::make_unique<juceSliderWithParam>();
-        sl->p = p.get();
-        sl->setRange(0.f, 1.f );
-        sl->setBounds( 110, ypos, 300, 28 );
-        sl->setValue(v, juce::NotificationType::dontSendNotification);
-        sl->addListener(this);
-        addAndMakeVisible(sl.get());
-        sliders.push_back(std::move(sl));
-
-        ypos += 30;
-    }
-
-    idleTimer = std::make_unique<IdleTimer>(this);
-    idleTimer->startTimer(1000 / 30);
+    contents = std::make_unique<ResizeContents>(*this);
+    addAndMakeVisible(*contents);
+    setResizable(true, false);
+    setSize (uiW, uiH);
 }
 
-ToyJuceAudioProcessorEditor::~ToyJuceAudioProcessorEditor()
+ResizeEditor::~ResizeEditor()
 {
 }
 
-//==============================================================================
-void ToyJuceAudioProcessorEditor::paint (Graphics& g)
+void ResizeEditor::resized()
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-
-    int ypos = 30;
-    for( auto &p : processor.fsparams )
-    {
-        auto t = p->streaming_name;
-        auto v = p->value;
-
-        String s = t + " " + std::to_string(v);
-        g.setColour( Colour(255,255,255));
-        g.drawText(s, 10, ypos, 100, 20, Justification::centredLeft);
-
-        ypos += 30;
-    }
+    contents->setBounds(getLocalBounds().reduced(4).transformedBy(contents->getTransform().inverted()));
 }
 
-void ToyJuceAudioProcessorEditor::resized()
+void ResizeEditor::doSize(int i)
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
-}
-
-void ToyJuceAudioProcessorEditor::sliderValueChanged(juce::Slider *s) {
-    auto jsp = dynamic_cast<juceSliderWithParam *>(s);
-    if( jsp )
-    {
-        processor.setParameterFromUI(jsp->p->id, jsp->getValue());
-        repaint();
-    }
-}
-
-void ToyJuceAudioProcessorEditor::idle()
-{
-    if( processor.newValues )
-    {
-        processor.newValues = false;
-        for( auto &s : sliders )
-        {
-            if( s->getValue() != s->p->value )
-            {
-                s->setValue(s->p->value, juce::NotificationType::dontSendNotification);
-            }
-        }
-        repaint();
-    }
+    auto z = zooms[i];
+    contents->setTransform(juce::AffineTransform().scaled(z));
+    setSize((int)(uiW * z), (int)(uiH*z));
 }

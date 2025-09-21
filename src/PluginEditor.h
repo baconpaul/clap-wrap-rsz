@@ -10,66 +10,33 @@
 
 #pragma once
 
-#include <JuceHeader.h>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_gui_basics/juce_gui_basics.h>
 #include "PluginProcessor.h"
 
 //==============================================================================
 /**
 */
-class ToyJuceAudioProcessorEditor  : public juce::AudioProcessorEditor,
-         juce::Slider::Listener
+class ResizeContents;
+
+class ResizeEditor  : public juce::AudioProcessorEditor
 {
 public:
-    ToyJuceAudioProcessorEditor (ToyJuceAudioProcessor&);
-    ~ToyJuceAudioProcessorEditor();
+    static constexpr int uiW{400}, uiH{250};
+    ResizeEditor (ResizeAudioProcessor&);
+    ~ResizeEditor();
 
-    //==============================================================================
-    void paint (juce::Graphics&) override;
     void resized() override;
+    void paint(juce::Graphics &g) { g.fillAll(juce::Colours::green); }
+    void doSize(int);
 
-    void sliderValueChanged(juce::Slider *) override;
+    std::unique_ptr<ResizeContents> contents;
 
-    struct IdleTimer : juce::Timer {
-        IdleTimer(ToyJuceAudioProcessorEditor *ed) : ed(ed) {}
-        ~IdleTimer() = default;
-        void timerCallback() override { ed->idle(); }
-        ToyJuceAudioProcessorEditor *ed;
-    };
-    void idle();
 private:
-    std::unique_ptr<IdleTimer> idleTimer;
-
-
-    struct juceSliderWithParam : public juce::Slider {
-        FakeSurgeParameter *p;
-
-        void mouseDown(const juce::MouseEvent &e) override
-        {
-           if (e.mods.isPopupMenu())
-           {
-               auto m = juce::PopupMenu();
-               m.addItem( "Say Hi", []() { std::cout << "Hi" << std::endl; });
-               m.addItem( "Set to Zero", [this]() { setValue(0, juce::sendNotificationAsync);});
-               m.addItem( "Set to Half", [this]() { setValue(0.5, juce::sendNotificationAsync);});
-               m.addItem( "Set to One", [this]() { setValue(1.0, juce::sendNotificationAsync);});
-               m.addItem( "Roll the Dice", [this]() {
-                  float q = 1.f * rand() / ((float)RAND_MAX);
-                  setValue(q, juce::sendNotificationAsync);
-               });
-               m.showMenuAsync(juce::PopupMenu::Options());
-           }
-           else
-           {
-              juce::Slider::mouseDown(e);
-           }
-        }
-    };
-    std::vector<std::unique_ptr<juceSliderWithParam>> sliders;
-
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    ToyJuceAudioProcessor& processor;
+    ResizeAudioProcessor& processor;
 
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ToyJuceAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResizeEditor)
 };

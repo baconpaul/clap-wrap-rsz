@@ -2,48 +2,48 @@ cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.11 CACHE STRING "Build for 10.11")
 
-project(toy-juce VERSION 0.9.0 LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
+project(clap-wrap-rsz VERSION 0.9.0 LANGUAGES CXX)
 
 add_subdirectory(lib/JUCE)
+add_subdirectory(lib/clap-juce-extensions)
 
-set( BUILD_VST2 FALSE )
-if( BUILD_VST2 )
-    set( EXTRA_FORMATS VST )
-    juce_set_vst2_sdk_path( "../VST2_SDK")
-else()
-    set( EXTRA_FORMATS "" )
-endif()
-
-message( STATUS "Extra Formats : ${EXTRA_FORMATS}" )
-
-juce_add_plugin(toy-juce
-    PRODUCT_NAME "ToyJuce"
-    COMPANY_NAME "Surge Synth Team"  
-    BUNDLE_ID "org.surge-synth-team.toy-juce"
-    PLUGIN_MANUFACTURER_CODE VmbA
-    PLUGIN_CODE ToJC
+juce_add_plugin(resize-test
+    PRODUCT_NAME "ResizeTest"
+    COMPANY_NAME "BaconPaul"
+    BUNDLE_ID "org.baconpaul.resize-test"
+    PLUGIN_MANUFACTURER_CODE BcpL
+    PLUGIN_CODE RSZt
 
     IS_SYNTH TRUE
     NEEDS_MIDI_INPUT TRUE
     NEEDS_MIDI_OUTPUT FALSE
     IS_MIDI_EFFECT FALSE
     
-    FORMATS AU VST3 Standalone ${EXTRA_FORMATS}
+    FORMATS VST3 Standalone
 )
 
-juce_generate_juce_header( toy-juce )
+clap_juce_extensions_plugin(TARGET resize-test
+        CLAP_ID "org.baconpaul.resize-test"
+        CLAP_FEATURES instrument)
 
-target_include_directories(toy-juce 
+target_include_directories(resize-test
   PUBLIC
   src
 )
 
-target_sources(toy-juce PRIVATE
+target_sources(resize-test PRIVATE
   src/PluginEditor.cpp
   src/PluginProcessor.cpp
 )
 
-target_compile_definitions(toy-juce PUBLIC
+target_compile_definitions(resize-test PUBLIC
     JUCE_ALLOW_STATIC_NULL_VARIABLES=0
     JUCE_STRICT_REFCOUNTEDPOINTER=1
 
@@ -60,7 +60,7 @@ target_compile_definitions(toy-juce PUBLIC
     DONT_SET_USING_JUCE_NAMESPACE=1
 )
 
-target_link_libraries(toy-juce PRIVATE
+target_link_libraries(resize-test PRIVATE
     juce::juce_analytics
     juce::juce_audio_utils
     juce::juce_audio_processors

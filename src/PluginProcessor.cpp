@@ -14,92 +14,79 @@
 using namespace juce;
 
 //==============================================================================
-ToyJuceAudioProcessor::ToyJuceAudioProcessor()
+ResizeAudioProcessor::ResizeAudioProcessor()
     : AudioProcessor (BusesProperties()
                       .withOutput ("Output", AudioChannelSet::stereo(), true)
         )
 {
-    for( int i=0; i<9; ++i ) {
-        auto name = std::string("foo_") + std::to_string(i);
-        fsparams.push_back(std::make_unique<FakeSurgeParameter>(name, 0.5, 2*i));
-        name = std::string("bar_") + std::to_string(8-i);
-        fsparams.push_back(std::make_unique<FakeSurgeParameter>(name, 0.5, 2*i+1));
-    }
-
-
-    for( auto &p : fsparams )
-    {
-        params.push_back(new FSPRangedAdapter(p.get(), this));
-        addParameter(params.back());
-    }
 }
 
-ToyJuceAudioProcessor::~ToyJuceAudioProcessor()
+ResizeAudioProcessor::~ResizeAudioProcessor()
 {
 }
 
 //==============================================================================
-const String ToyJuceAudioProcessor::getName() const
+const String ResizeAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool ToyJuceAudioProcessor::acceptsMidi() const
+bool ResizeAudioProcessor::acceptsMidi() const
 {
     return true;
 }
 
-bool ToyJuceAudioProcessor::producesMidi() const
+bool ResizeAudioProcessor::producesMidi() const
 {
     return false;
 }
 
-bool ToyJuceAudioProcessor::isMidiEffect() const
+bool ResizeAudioProcessor::isMidiEffect() const
 {
     return false;
 }
 
-double ToyJuceAudioProcessor::getTailLengthSeconds() const
+double ResizeAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int ToyJuceAudioProcessor::getNumPrograms()
+int ResizeAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int ToyJuceAudioProcessor::getCurrentProgram()
+int ResizeAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void ToyJuceAudioProcessor::setCurrentProgram (int index)
+void ResizeAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const String ToyJuceAudioProcessor::getProgramName (int index)
+const String ResizeAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void ToyJuceAudioProcessor::changeProgramName (int index, const String& newName)
+void ResizeAudioProcessor::changeProgramName (int index, const String& newName)
 {
 }
 
 //==============================================================================
-void ToyJuceAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void ResizeAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
 }
 
-void ToyJuceAudioProcessor::releaseResources()
+void ResizeAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
-bool ToyJuceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool ResizeAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
     // This is the place where you check if the layout is supported.
     // In this template code we only support mono or stereo.
@@ -114,33 +101,27 @@ bool ToyJuceAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) 
     return true;
 }
 
-void ToyJuceAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void ResizeAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
-    std::pair<int,float> q;
-    while( uiMessageQ.pop(q))
-    {
-        auto p = params[q.first];
-        p->setValueNotifyingHost(q.second);
-    }
 }
 
 //==============================================================================
-bool ToyJuceAudioProcessor::hasEditor() const
+bool ResizeAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-AudioProcessorEditor* ToyJuceAudioProcessor::createEditor()
+AudioProcessorEditor* ResizeAudioProcessor::createEditor()
 {
-    return new ToyJuceAudioProcessorEditor (*this);
+    return new ResizeEditor (*this);
 }
 
 //==============================================================================
-void ToyJuceAudioProcessor::getStateInformation (MemoryBlock& destData)
+void ResizeAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
 }
 
-void ToyJuceAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void ResizeAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
 }
 
@@ -148,5 +129,5 @@ void ToyJuceAudioProcessor::setStateInformation (const void* data, int sizeInByt
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new ToyJuceAudioProcessor();
+    return new ResizeAudioProcessor();
 }
