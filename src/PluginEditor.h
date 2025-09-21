@@ -27,7 +27,7 @@ public:
     ~ResizeEditor();
 
     void resized() override;
-    void paint(juce::Graphics &g) { g.fillAll(juce::Colours::green); }
+    void paint(juce::Graphics &g) { g.fillAll(juce::Colours::yellow); }
     void doSize(int);
 
     std::unique_ptr<ResizeContents> contents;

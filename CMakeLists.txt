@@ -32,6 +32,7 @@ juce_add_plugin(resize-test
 clap_juce_extensions_plugin(TARGET resize-test
         CLAP_ID "org.baconpaul.resize-test"
         CLAP_FEATURES instrument)
+add_dependencies(resize-test_All resize-test_CLAP)
 
 target_include_directories(resize-test
   PUBLIC
