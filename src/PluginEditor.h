@@ -14,6 +14,9 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "PluginProcessor.h"
 
+#define uiW 400
+#define uiH 250
+
 //==============================================================================
 /**
 */
@@ -22,7 +25,6 @@ class ResizeContents;
 class ResizeEditor  : public juce::AudioProcessorEditor
 {
 public:
-    static constexpr int uiW{400}, uiH{250};
     ResizeEditor (ResizeAudioProcessor&);
     ~ResizeEditor();
 
@@ -37,6 +39,7 @@ private:
     // access the processor object that created it.
     ResizeAudioProcessor& processor;
 
+    float resizeRatio = 1.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResizeEditor)
 };
